@@ -7,7 +7,7 @@ if (!window.supabase || !cfg.supabaseUrl || /YOUR-/.test(cfg.supabaseUrl + cfg.s
   $app.innerHTML = `<div class="setup stack"><h2>ยังไม่ได้ตั้งค่า</h2><p>เปิดไฟล์ <b>config.js</b> แล้วใส่ Supabase URL และ anon key ตามขั้นตอนใน DEPLOY.md</p></div>`;
   return;
 }
-const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { db: { schema: 'parklog' } });
 
 /* ---------- helpers ---------- */
 const TH_M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -102,6 +102,7 @@ function friendly(e){
   if(/foreign key|violates.*vehicle/i.test(m))return 'มีประวัติการจอดของรถคันนี้ จึงลบไม่ได้';
   if(/duplicate key.*plate|vehicles_user_id_plate/i.test(m))return 'มีทะเบียนนี้อยู่แล้ว';
   if(/Failed to fetch|NetworkError/i.test(m))return 'เชื่อมต่ออินเทอร์เน็ตไม่ได้';
+  if(/Invalid schema|schema must be one of/i.test(m))return 'ยังไม่ได้เพิ่ม schema "parklog" ใน Exposed schemas (ดู DEPLOY.md ขั้นที่ 2)';
   return m;
 }
 
