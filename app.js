@@ -251,7 +251,7 @@ function data(){
 }
 function rowHtml(x){
   const c=sessCalc(x,S.now,mode()),moto=veh(x.v)?.type==='moto';
-  const t=x.edited?['แก้ไข','tag-outline']:x.src==='manual'?['เพิ่มย้อนหลัง','tag-accent']:['กดปุ่มสด','tag-neutral'];
+  const t=x.edited?['แก้ไข','tag-warn']:x.src==='manual'?['เพิ่มย้อนหลัง','tag-manual']:['กดปุ่มสด','tag-live'];
   const hrs=moto?'จักรยานยนต์':c.durMin<=15?'ฟรี 15 นาที':`คิด ${c.hours} ชม. · ${c.hours*10} ฿`;
   return `<button class="item" data-act="openEdit" data-id="${x.id}">
     <span class="l"><span class="t">${hm(x.in)} – ${x.out?hm(x.out):'กำลังจอด'}</span><span class="s">${durTxt(c.durMin)} · ${hrs}${x.note?' · '+esc(x.note):''}</span></span>
@@ -309,16 +309,17 @@ function vHome(D){
         <button class="btn btn-secondary" data-act="cycleVehicle" style="gap:8px;padding:8px 10px">${ic(P.car,18)}<span style="font-size:15px">${act?esc(act.plate):'เพิ่มรถ'}</span></button>
       </div></div>
     ${!S.vehicles.length?`<button class="banner" data-act="openVehicle" style="border:0;cursor:pointer;text-align:left;font:inherit">${ic(P.car,18)}<span>เริ่มต้น: เพิ่มข้อมูลรถของคุณก่อนกดเข้า-ออก</span></button>`:''}
-    <div class="card blueprint status">${C}
-      <div class="status-top"><span class="tag ${open?'tag-accent':'tag-neutral'}">${open?'กำลังจอด':'ไม่ได้จอด'}</span><span class="small muted" style="white-space:nowrap">${since}</span></div>
+    <div class="card blueprint status${open?' parked':''}">${C}
+      <div class="status-top"><span class="tag ${open?'tag-accent':'tag-neutral'} live">${open?'<i class="pulse"></i>กำลังจอด':'ไม่ได้จอด'}</span><span class="small muted" style="white-space:nowrap">${since}</span></div>
       <div class="timer" id="timer">${timer}</div>
       <div class="status-line">${line}</div>
       <div class="split"><div><div class="label">ค่าจอดวันนี้</div><div class="num">${tc.fee} <small>บาท</small></div></div>
         <div><div class="label">สะสมเดือนนี้</div><div class="num">${money(D.total(cm))} <small>บาท</small></div></div></div>
+      ${act&&act.type==='moto'?'':`<div class="meter"><div class="meter-top"><span class="label">เพดานรายวัน</span><span class="label"><b>${tc.fee}</b> / 80 บาท</span></div><div class="meter-bar">${[1,2,3,4,5,6,7,8].map(i=>`<i class="${tc.fee>=i*10?'on':''}"></i>`).join('')}</div></div>`}
     </div>
     <div class="tap-grid">
-      <button class="btn ${open?'btn-secondary':'btn-primary'} blueprint tap" data-act="tapIn"${open?' disabled':dis}>${C}${ic(P.in,30)}<b>เข้า</b><span>บันทึกเวลาเข้า</span></button>
-      <button class="btn ${open?'btn-primary':'btn-secondary'} blueprint tap" data-act="tapOut"${open?dis:' disabled'}>${C}${ic(P.out,30)}<b>ออก</b><span>บันทึกเวลาออก</span></button>
+      <button class="btn ${open?'btn-secondary':'btn-primary'} blueprint tap tap-in" data-act="tapIn"${open?' disabled':dis}>${C}<span class="tap-top">${ic(P.in,26)}<span class="tap-key">IN</span></span><span class="tap-main"><b>เข้า</b><span class="tap-sub">${open?'บันทึกแล้ว '+hm(open.in):'แตะเพื่อบันทึกเวลาเข้า'}</span></span></button>
+      <button class="btn ${open?'btn-primary':'btn-secondary'} blueprint tap tap-out" data-act="tapOut"${open?dis:' disabled'}>${C}<span class="tap-top">${ic(P.out,26)}<span class="tap-key">OUT</span></span><span class="tap-main"><b>ออก</b><span class="tap-sub">${open?'แตะเพื่อบันทึกเวลาออก':'ยังไม่ได้เข้า'}</span></span></button>
     </div>
     ${gate?`<div class="small muted" style="text-align:center">${gate}</div>`:''}
     <div><div class="list-head"><h4>รายการวันนี้</h4><span class="small muted">${rows.length?rows.length+' ครั้ง':''}</span></div>
@@ -343,22 +344,22 @@ function vCheck(D){
   const flagged=S.sessions.filter(x=>x.date.startsWith(mk)&&(x.src==='manual'||x.edited)).length;
   let r;
   if(off===null)r={i:P.receipt,t:'กรอกยอดจากหนังสือหักเงิน',s:'ใส่ยอดที่สำนักงานแจ้งหักเพื่อเทียบกับบันทึกของคุณ'};
-  else if(off===app)r={i:P.shield,t:'ยอดตรงกัน',s:`สำนักงานหัก ${money(off)} บาท เท่ากับบันทึกในแอพ`,ok:1};
-  else{const d=off-app;r={i:P.alert,t:d>0?`สำนักงานหักเกิน ${money(d)} บาท`:`สำนักงานหักน้อยกว่า ${money(-d)} บาท`,s:d>0?'ตรวจรายวันด้านล่าง แล้วสรุปเป็นหลักฐานยื่นโต้แย้ง':'ยอดหักต่ำกว่าบันทึก — ตรวจว่ามีรายการที่ไม่ได้ใช้จริงหรือไม่'};}
+  else if(off===app)r={i:P.shield,t:'ยอดตรงกัน',s:`สำนักงานหัก ${money(off)} บาท เท่ากับบันทึกในแอพ`,ok:1,k:'ok'};
+  else{const d=off-app;r={i:P.alert,k:d>0?'over':'under',t:d>0?`สำนักงานหักเกิน ${money(d)} บาท`:`สำนักงานหักน้อยกว่า ${money(-d)} บาท`,s:d>0?'ตรวจรายวันด้านล่าง แล้วสรุปเป็นหลักฐานยื่นโต้แย้ง':'ยอดหักต่ำกว่าบันทึก — ตรวจว่ามีรายการที่ไม่ได้ใช้จริงหรือไม่'};}
   const[y,m]=mk.split('-').map(Number),dl=new Date(y,m,3,23,59),left=Math.ceil((dl-S.now)/86400000);
   const dlt=mk>=cm?'เดือนนี้ยังไม่ปิดยอด — สำนักงานสรุปยอดสิ้นเดือน':left<0?`เลยกำหนดโต้แย้งแล้ว (ถึง 3 ${TH_MS[dl.getMonth()]} ${dl.getFullYear()+543})`:`โต้แย้งได้ถึง 3 ${TH_MS[dl.getMonth()]} ${dl.getFullYear()+543} · <span class="nowrap">เหลือ ${left} วัน</span>`;
   return `<div class="stack" style="gap:16px">
     <div class="head"><div><div class="card-kicker">เทียบกับหนังสือหักเงิน</div><h2>ตรวจยอด</h2></div></div>
     <div class="pager"><button class="btn btn-ghost btn-icon" data-act="chkPrev" aria-label="เดือนก่อน">${ic(P.left,18)}</button><div class="c">${mkLabel(mk)}</div><button class="btn btn-ghost btn-icon" data-act="chkNext" aria-label="เดือนถัดไป">${ic(P.right,18)}</button></div>
-    <div class="banner">${ic(P.clock,18)}<span>${dlt}</span></div>
+    <div class="banner${mk<cm&&left>=0&&left<=3?' warn':''}">${ic(P.clock,18)}<span>${dlt}</span></div>
     <div class="compare">
       <div><span class="label">ยอดจากบันทึกในแอพ</span><span style="font:600 32px/1.1 var(--font-heading)">${money(app)}</span><span class="label">${ks.length} วัน${flagged?` · แก้/เพิ่มเอง ${flagged}`:''}</span></div>
       <div><label class="label" for="office">ยอดที่สำนักงานหัก</label><input id="office" class="input" type="number" inputmode="decimal" placeholder="0" value="${esc(ov)}"><span class="label">จากหนังสือแจ้งหักเงินเดือน</span></div>
     </div>
-    <div class="card blueprint result">${C}<span style="flex:none;color:${r.ok?'var(--color-accent)':'currentColor'}">${ic(r.i,34)}</span><div style="flex:1"><div class="title">${r.t}</div><div class="small muted">${r.s}</div></div></div>
+    <div class="card blueprint result ${r.k||''}">${C}<span class="ricon" style="flex:none">${ic(r.i,34)}</span><div style="flex:1"><div class="title">${r.t}</div><div class="small muted">${r.s}</div></div></div>
     <div class="grid2"><button class="btn btn-primary blueprint h44" data-act="openEvidence">${C}${ic(P.file,16)}สรุปเป็นหลักฐาน</button><button class="btn btn-secondary h44" data-act="tab" data-tab="log">ดูบันทึกทั้งหมด</button></div>
     <div class="ctable"><div class="tr th"><span>วันที่</span><span>เข้า–ออก</span><span>บาท</span></div>
-      ${ks.map(k=>{const l=D.map[k],c=D.dc(k),f=l.some(x=>x.edited)?['แก้ไข','tag-outline']:l.some(x=>x.src==='manual')?['เพิ่มเอง','tag-accent']:null;const last=l[l.length-1];
+      ${ks.map(k=>{const l=D.map[k],c=D.dc(k),f=l.some(x=>x.edited)?['แก้ไข','tag-warn']:l.some(x=>x.src==='manual')?['เพิ่มเอง','tag-manual']:null;const last=l[l.length-1];
         return `<div class="tr"><span style="font-weight:500">${dayLbl(k).replace(/^\S+ /,'')}</span><span class="span">${hm(l[0].in)}–${last.out?hm(last.out):'…'}${l.length>1?` (${l.length} ครั้ง)`:''}${f?`<span class="tag ${f[1]}">${f[0]}</span>`:''}</span><span class="fee" style="font-size:15px;text-align:right">${c.fee}</span></div>`}).join('')}
       ${ks.length?'':'<div class="empty">ไม่มีรายการในเดือนนี้</div>'}
     </div></div>`;
@@ -368,7 +369,7 @@ function vStats(D){
   if(S.statsMode==='month'){
     const[y,m]=S.statsMonth.split('-').map(Number),n=new Date(y,m,0).getDate();let days=0,mins=0,cap=0,tot=0;
     for(let i=1;i<=n;i++){const k=`${S.statsMonth}-${pad(i)}`,c=D.map[k]?D.dc(k):null;if(c){days++;mins+=c.durMin;tot+=c.fee;if(c.raw>=80)cap++;}
-      bars.push({h:c?Math.max(3,c.fee/80*100):0,hi:c&&c.fee>=80,l:(i===1||i%5===0)?i:'',tip:`${i} ${TH_MS[m-1]}: ${c?c.fee:0} บาท`});}
+      bars.push({h:c?Math.max(3,c.fee/80*100):0,hi:c&&c.fee>=80,mid:c&&c.fee>=50&&c.fee<80,l:(i===1||i%5===0)?i:'',tip:`${i} ${TH_MS[m-1]}: ${c?c.fee:0} บาท`});}
     label=mkLabel(S.statsMonth);total=money(tot);scale='สเกล 0–80 บาท/วัน';gap=2;
     metrics=[['วันที่จอด',`${days} วัน`],['ชั่วโมงจอดรวม',`${Math.round(mins/60)} ชม.`],['เฉลี่ยต่อวัน',`${days?Math.round(tot/days):0} บาท`],['วันที่ชนเพดาน 80',`${cap} วัน`]];
   }else{
@@ -387,7 +388,7 @@ function vStats(D){
     <div class="card blueprint chart-card">${C}
       <div class="row" style="justify-content:space-between"><span class="label">ยอดรวม</span><span class="label" style="white-space:nowrap">${scale}</span></div>
       <div style="font:600 44px/1 var(--font-heading)">${total} <span style="font-size:18px">บาท</span></div>
-      <div class="chart" style="gap:${gap}px">${bars.map(b=>`<i class="${b.hi?'hi':''}" style="height:${b.h}%" title="${b.tip}"></i>`).join('')}</div>
+      <div class="chart" style="gap:${gap}px">${bars.map(b=>`<i class="${b.hi?'hi':b.mid?'mid':''}" style="height:${b.h}%" title="${b.tip}"></i>`).join('')}</div>
       <div class="axis" style="gap:${gap}px">${bars.map(b=>`<span>${b.l}</span>`).join('')}</div>
     </div>
     <div class="cells">${metrics.map(([k,v])=>`<div><div class="label">${k}</div><div class="num" style="font-size:26px">${v}</div></div>`).join('')}</div>
@@ -407,7 +408,7 @@ function vProfile(){
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
         <span style="font:600 16px var(--font-heading)">${esc(v.brand||(v.type==='moto'?'จักรยานยนต์':'รถยนต์'))}</span>
         <span class="small muted">${v.type==='moto'?'จักรยานยนต์':'รถยนต์'}${v.color?' · สี'+esc(v.color):''}</span>
-        <span class="row" style="flex-wrap:wrap;gap:6px"><span class="tag tag-neutral">${v.registered?'ลงทะเบียน · กล้องอ่านป้าย':'ใช้บัตร RFID'}</span>${v.id===S.active?'<span class="tag tag-accent">ใช้อยู่</span>':''}</span>
+        <span class="row" style="flex-wrap:wrap;gap:6px"><span class="tag tag-neutral">${v.registered?'ลงทะเบียน · กล้องอ่านป้าย':'ใช้บัตร RFID'}</span>${v.id===S.active?'<span class="tag tag-ok">ใช้อยู่</span>':''}</span>
       </div>
       <button class="btn btn-ghost btn-icon" data-act="delVehicle" data-id="${v.id}" aria-label="ลบรถ">${ic(P.x,16)}</button></div>`).join('')}
     ${S.vehicles.length?'':'<div class="empty" style="text-align:left">ยังไม่มีรถ — กด "+ เพิ่มรถ"</div>'}
@@ -455,7 +456,7 @@ function vSheet(){
       <pre class="evidence">${esc(evidenceText())}</pre>
       <button class="btn btn-primary blueprint h44" data-act="copyEvidence">${C}${ic(P.copy,16)}คัดลอกข้อความ</button>`;
   }
-  return `<div class="sheet-wrap"><div class="sheet-bg" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${title}">
+  return `<div class="sheet-wrap"><div class="sheet-bg${FX.sheet?' anim':''}" data-act="close"></div><div class="sheet${FX.sheet?' anim':''}" role="dialog" aria-modal="true" aria-label="${title}">
     <div class="sheet-head"><h3>${title}</h3><button class="btn btn-ghost btn-icon" data-act="close" aria-label="ปิด">${ic(P.x,18)}</button></div>${body}</div></div>`;
 }
 function preview(){
@@ -465,20 +466,22 @@ function preview(){
 }
 function vTabs(){
   const t=(id,icon,label)=>`<button data-act="tab" data-tab="${id}"${S.tab===id?' aria-current="page"':''}>${ic(icon,22)}${label}</button>`;
-  return `<div class="tabbar"><nav>${t('home',P.clock,'วันนี้')}${t('log',P.list,'บันทึก')}${t('check',P.receipt,'ตรวจยอด')}${t('stats',P.chart,'สถิติ')}${t('profile',P.user,'โปรไฟล์')}</nav></div>`;
+  return `<div class="tabbar"><nav class="blueprint">${C}${t('home',P.clock,'วันนี้')}${t('log',P.list,'บันทึก')}${t('check',P.receipt,'ตรวจยอด')}${t('stats',P.chart,'สถิติ')}${t('profile',P.user,'โปรไฟล์')}</nav></div>`;
 }
 
-let lastHtml='';
+let lastHtml='',FX={},RS={};
 function render(){
+  FX={tab:S.tab!==RS.tab,sheet:!!S.sheet&&S.sheet!==RS.sheet,toast:!!S.toast&&S.toast!==RS.toast};
+  RS={tab:S.tab,sheet:S.sheet,toast:S.toast};
   document.documentElement.dataset.theme=themeMode();
   let html;
   if(S.loading)html='<div class="loading">กำลังโหลด…</div>';
   else if(!S.user)html=vLogin();
   else{
     const D=data(),v={home:vHome,log:vLog,check:vCheck,stats:vStats,profile:vProfile}[S.tab](D);
-    html=`<div class="shell"><main class="main">${v}</main></div>${vTabs()}${vSheet()}`;
+    html=`<div class="shell"><main class="main${FX.tab?' anim':''}">${v}</main></div>${vTabs()}${vSheet()}`;
   }
-  if(S.toast)html+=`<div class="toast" role="status">${esc(S.toast)}</div>`;
+  if(S.toast)html+=`<div class="toast${FX.toast?' anim':''}" role="status">${esc(S.toast)}</div>`;
   if(html===lastHtml)return;
   // keep focus & scroll inside sheets when re-rendering
   const fid=document.activeElement&&document.activeElement.id,sheetScroll=document.querySelector('.sheet')?.scrollTop;
@@ -507,7 +510,14 @@ const bind=e=>{
 document.addEventListener('input',bind);
 document.addEventListener('change',e=>{bind(e);if(e.target.id==='office')saveOffice(e.target.value.trim());});
 
-setInterval(()=>{S.now=Date.now();if(S.user&&!S.loading&&!S.sheet&&S.tab==='home')render();},1000);
+let lastMin=0;
+setInterval(()=>{
+  S.now=Date.now();if(!(S.user&&!S.loading&&S.tab==='home'))return;
+  const m=Math.floor(S.now/60000);
+  if(m!==lastMin&&!S.sheet){lastMin=m;render();return;}
+  const t=document.getElementById('timer'),o=S.sessions.find(x=>!x.out);
+  if(t&&o){const el=Math.max(0,Math.floor((S.now-o.in)/1000));t.textContent=`${pad(Math.floor(el/3600))}:${pad(Math.floor(el/60)%60)}:${pad(el%60)}`;}
+},1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.user&&!S.sheet)loadAll(true);});
 
 /* ---------- auth ---------- */
