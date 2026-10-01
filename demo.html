@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PARK/LOG — Demo (ไม่ต่อฐานข้อมูล)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Demo mode: in-memory fake of supabase-js so the UI can be tried without a backend. Not used in production.
+(function(){
+  const uid='demo-user', user={id:uid,email:'demo.user@gmail.com',user_metadata:{full_name:'ผู้ใช้ทดลอง'}};
+  let signed=true, idc=1;
+  const db={profiles:[{id:uid,email:user.email,full_name:'ผู้ใช้ทดลอง',free_rule:'whole'}],
+    vehicles:[{id:'v1',user_id:uid,type:'car',plate:'1กข 4521',province:'กรุงเทพมหานคร',brand:'Honda City',color:'เทา',registered:true,created_at:'2026-01-01'}],
+    parking_sessions:[],statements:[]};
+  const pad=n=>String(n).padStart(2,'0'),dk=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  let s=11;const r=()=>{s=(s*16807)%2147483647;return(s-1)/2147483646};
+  const now=new Date();
+  for(let d=new Date(now.getFullYear(),now.getMonth()-2,1);dk(d)<dk(now);d.setDate(d.getDate()+1)){
+    if(d.getDay()%6===0||r()<.1)continue;
+    const a=new Date(d);a.setHours(7,25+Math.floor(r()*r()*150));const b=new Date(d);b.setHours(16,20+Math.floor(r()*140));
+    if(r()<.12)b.setHours(11+Math.floor(r()*4),Math.floor(r()*60));
+    db.parking_sessions.push({id:idc++,user_id:uid,vehicle_id:'v1',park_date:dk(d),time_in:a.toISOString(),time_out:b.toISOString(),source:'tap',note:null,edited_at:null});
+  }
+  function Q(t){this.t=t;this.f=[];this.op='select';this.one=false;}
+  Q.prototype={select(){return this},order(){return this},range(){return this},eq(k,v){this.f.push([k,v]);return this},
+    maybeSingle(){this.one='maybe';return this},single(){this.one=true;return this},
+    insert(o){this.op='insert';this.v=o;return this},update(o){this.op='update';this.v=o;return this},delete(){this.op='delete';return this},upsert(o){this.op='upsert';this.v=o;return this},
+    then(res,rej){
+      const T=db[this.t],m=x=>this.f.every(([k,v])=>String(x[k])===String(v));let out;
+      if(this.op==='select')out=T.filter(m);
+      else if(this.op==='insert'){const o={id:this.t==='vehicles'?'v'+Date.now():idc++,user_id:uid,created_at:new Date().toISOString(),edited_at:null,...this.v};T.push(o);out=[o];}
+      else if(this.op==='update'){out=T.filter(m);out.forEach(x=>{Object.assign(x,this.v);if(this.t==='parking_sessions')x.edited_at=new Date().toISOString()});}
+      else if(this.op==='delete'){out=T.filter(m);db[this.t]=T.filter(x=>!m(x));}
+      else if(this.op==='upsert'){const i=T.findIndex(x=>x.month===this.v.month);i<0?T.push(this.v):T[i]=this.v;out=[this.v];}
+      out=JSON.parse(JSON.stringify(out));
+      return Promise.resolve({data:this.one?(out[0]||null):out,error:null}).then(res,rej);
+    }};
+  let cb=()=>{};
+  window.supabase={createClient:()=>({
+    from:t=>new Q(t),
+    rpc(fn,a){const P=db.parking_sessions,n=new Date().toISOString();let o=null;
+      if(fn==='tap_in'){if(P.some(x=>!x.time_out))return Promise.resolve({data:null,error:{message:'one_open_session'}});o={id:idc++,user_id:uid,vehicle_id:a.p_vehicle,park_date:dk(new Date()),time_in:n,time_out:null,source:'tap',note:null,edited_at:null};P.push(o);}
+      if(fn==='tap_out'){o=P.find(x=>!x.time_out);if(o)o.time_out=n;}
+      return Promise.resolve({data:o&&JSON.parse(JSON.stringify(o)),error:null});},
+    auth:{getSession:()=>Promise.resolve({data:{session:signed?{user}:null}}),onAuthStateChange(f){cb=f},
+      signInWithOAuth(){signed=true;cb('SIGNED_IN',{user});return Promise.resolve({error:null})},
+      signOut(){signed=false;cb('SIGNED_OUT',null);return Promise.resolve({error:null})}}
+  })};
+  window.PARKLOG_CONFIG={supabaseUrl:'https://demo.local',supabaseAnonKey:'demo'};
+})();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

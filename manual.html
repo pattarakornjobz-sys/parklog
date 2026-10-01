@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>คู่มือการใช้งาน PARK/LOG</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>try{var t=localStorage.getItem('parklog-theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.dataset.theme='dark'}catch(e){}</script>
+<style>
+.doc{max-width:720px;margin:0 auto;padding:40px 22px 80px;line-height:1.7}
+.doc h1{font-size:44px;margin:4px 0 8px}
+.doc h2{font-size:28px;margin:0 0 10px;display:flex;gap:12px;align-items:baseline}
+.doc h2 .n{font:600 14px var(--font-heading);color:var(--color-accent-700);border:1px solid var(--color-divider);padding:2px 8px}
+.doc section{padding:28px 0;border-top:1px solid var(--color-divider)}
+.doc ol,.doc ul{padding-left:22px;margin:0 0 10px}
+.doc li{margin:4px 0}
+.doc .ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px}
+.doc .ex .card{padding:14px;gap:4px}
+.doc .ex b{font:600 22px var(--font-heading)}
+.doc .note{padding:12px 14px;background:var(--color-accent-100);color:var(--color-accent-900);font-size:14px;margin:12px 0}
+.doc .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 20px;font-size:14px;margin-top:14px}
+.doc kbd{font:600 13px var(--font-heading);border:1px solid var(--color-divider);padding:1px 7px}
+</style>
+</head>
+<body>
+<main class="doc">
+  <div class="card-kicker">คู่มือสำหรับทีม</div>
+  <h1>PARK/LOG</h1>
+  <p>แอพบันทึกเวลาเข้า-ออกลานจอดของสำนักงาน คำนวณค่าบริการให้อัตโนมัติ และใช้ตรวจยอดกับหนังสือหักเงินเดือนตอนสิ้นเดือน ข้อมูลของแต่ละคนแยกกัน ไม่มีใครเห็นข้อมูลของคนอื่น</p>
+  <p><a href="./">← กลับไปที่แอพ</a></p>
+  <nav class="toc">
+    <a href="#s1">1. เริ่มต้นใช้งาน</a><a href="#s2">2. เพิ่มรถของคุณ</a><a href="#s3">3. กดเข้า-กดออกทุกวัน</a>
+    <a href="#s4">4. ลืมกด / แก้ไขเวลา</a><a href="#s5">5. วิธีคิดค่าบริการ</a><a href="#s6">6. ตรวจยอดสิ้นเดือน</a>
+    <a href="#s7">7. สถิติ</a><a href="#s8">8. ความเป็นส่วนตัว</a><a href="#s9">9. คำถามที่พบบ่อย</a>
+  </nav>
+
+  <section id="s1"><h2><span class="n">01</span>เริ่มต้นใช้งาน</h2>
+    <ol>
+      <li>เปิดลิงก์แอพที่ได้รับจากหัวหน้าทีม</li>
+      <li>กด <kbd>เข้าสู่ระบบด้วย Google</kbd> แล้วเลือกบัญชี <b>@gmail.com</b> ของคุณ (บัญชีอื่นใช้ไม่ได้)</li>
+      <li>แนะนำให้เพิ่มแอพไว้ที่หน้าจอโฮม จะเปิดได้เร็วเหมือนแอพทั่วไป
+        <ul>
+          <li><b>iPhone (Safari):</b> ปุ่มแชร์ → “เพิ่มไปยังหน้าจอโฮม”</li>
+          <li><b>Android (Chrome):</b> เมนู ⋮ → “เพิ่มลงในหน้าจอหลัก” หรือ “ติดตั้งแอป”</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <section id="s2"><h2><span class="n">02</span>เพิ่มรถของคุณ</h2>
+    <ol>
+      <li>ไปที่แท็บ <kbd>โปรไฟล์</kbd> → <kbd>+ เพิ่มรถ</kbd></li>
+      <li>เลือกประเภท รถยนต์ / จักรยานยนต์ แล้วกรอกทะเบียน จังหวัด ยี่ห้อ/รุ่น สี</li>
+      <li>ติ๊ก “ลงทะเบียนกับสำนักงานแล้ว” ถ้ารถคันนี้ใช้กล้องอ่านป้าย (ไม่ติ๊ก = ใช้บัตร RFID)</li>
+      <li>ถ้ามีหลายคัน ให้แตะการ์ดรถเพื่อเลือกคันที่ใช้วันนี้ หรือแตะปุ่มทะเบียนมุมขวาบนของหน้า “วันนี้” เพื่อสลับคัน</li>
+    </ol>
+    <p class="small muted">ตามหลักเกณฑ์ ลงทะเบียนได้สูงสุด 2 คันต่อ 1 ประเภทยานพาหนะ</p>
+  </section>
+
+  <section id="s3"><h2><span class="n">03</span>กดเข้า-กดออกทุกวัน</h2>
+    <ol>
+      <li>ตอนนำรถผ่านไม้กั้นเข้า กด <kbd>เข้า</kbd> ที่หน้า “วันนี้”</li>
+      <li>ตอนออก กด <kbd>ออก</kbd></li>
+      <li>ออกไปข้างนอกระหว่างวันแล้วกลับมา ก็กดเข้า-ออกใหม่ได้ ไม่จำกัดครั้ง</li>
+    </ol>
+    <p>เวลาที่บันทึกเป็นเวลาของเซิร์ฟเวอร์ ไม่ใช่เวลาในมือถือ จึงใช้เป็นหลักฐานได้ ระหว่างจอด หน้าจอจะแสดงเวลาจอดที่ผ่านไป ค่าจอดที่สะสมวันนี้ และเวลาที่ชั่วโมงถัดไปจะเริ่มคิดเงิน</p>
+    <div class="note">เข้าก่อน 05:30 น. หรือออกหลัง 19:00 น. ให้ใช้ประตูพิษณุโลก 1 นอกเวลานั้นใช้ไม้กั้นประตูพิษณุโลก 2</div>
+  </section>
+
+  <section id="s4"><h2><span class="n">04</span>ลืมกด / แก้ไขเวลา</h2>
+    <ul>
+      <li><b>ลืมกดทั้งวัน:</b> แท็บ <kbd>บันทึก</kbd> → <kbd>เพิ่มย้อนหลัง</kbd> → ใส่วันที่ เวลาเข้า เวลาออก และหมายเหตุ</li>
+      <li><b>ลืมกดออก:</b> แตะรายการนั้นในแท็บ “บันทึก” แล้วใส่เวลาออกที่ถูกต้อง</li>
+      <li><b>ลบรายการผิด:</b> แตะรายการ → <kbd>ลบรายการ</kbd></li>
+    </ul>
+    <p>ทุกรายการจะมีป้ายบอกที่มา เพื่อความโปร่งใสตอนโต้แย้ง</p>
+    <ul>
+      <li><span class="tag tag-neutral">กดปุ่มสด</span> บันทึกจากการกดปุ่มในเวลาจริง</li>
+      <li><span class="tag tag-accent">เพิ่มย้อนหลัง</span> เพิ่มเองภายหลัง</li>
+      <li><span class="tag tag-outline">แก้ไข</span> เคยถูกแก้เวลา ระบบเก็บเวลาเดิมไว้ด้วย</li>
+    </ul>
+  </section>
+
+  <section id="s5"><h2><span class="n">05</span>วิธีคิดค่าบริการ</h2>
+    <p>ตามหลักเกณฑ์ข้อ ๗ ของสำนักงาน</p>
+    <ul>
+      <li><b>รถยนต์:</b> ฟรี 15 นาทีแรก จากนั้นชั่วโมงละ 10 บาท เศษนาทีคิดเป็น 1 ชั่วโมง สูงสุดวันละ 80 บาท</li>
+      <li>คิดเงินเฉพาะช่วง 00:00–16:30 น. หลัง 16:30 ถึง 23:59 น. ไม่คิด</li>
+      <li><b>จักรยานยนต์:</b> เหมาจ่าย 20 บาทต่อวัน</li>
+      <li>ยอดสะสมทั้งเดือนจะถูกหักจากเงินเดือน</li>
+    </ul>
+    <div class="ex">
+      <div class="card blueprint"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><span class="small muted">เข้า 07:50 · ออก 17:30</span><b>80 บาท</b><span class="small">คิดถึง 16:30 = 8 ชม. 40 น. → 9 ชม. = 90 → ใช้เพดาน 80</span></div>
+      <div class="card blueprint"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><span class="small muted">เข้า 16:00 · ออก 18:00</span><b>10 บาท</b><span class="small">ช่วงที่คิดเงินคือ 16:00–16:30 = 30 นาที → 1 ชม.</span></div>
+      <div class="card blueprint"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><span class="small muted">เข้า 09:00 · ออก 09:12</span><b>0 บาท</b><span class="small">อยู่ไม่เกิน 15 นาที ฟรี</span></div>
+    </div>
+    <p class="small muted" style="margin-top:12px">ถ้าสำนักงานยืนยันว่า “ฟรี 15 นาที” หมายถึงหัก 15 นาทีออกก่อนแล้วค่อยคิด ให้เปลี่ยนที่ <kbd>โปรไฟล์</kbd> → “วิธีนับ 15 นาที” → “หักออกก่อน”</p>
+  </section>
+
+  <section id="s6"><h2><span class="n">06</span>ตรวจยอดสิ้นเดือน</h2>
+    <ol>
+      <li>เมื่อได้รับหนังสือแจ้งหักเงิน เปิดแท็บ <kbd>ตรวจยอด</kbd> แอพจะเลือกเดือนที่แล้วให้</li>
+      <li>กรอก “ยอดที่สำนักงานหัก” ตามหนังสือ</li>
+      <li>แอพจะบอกว่า <b>ยอดตรงกัน</b> หรือ <b>หักเกิน / หักน้อยกว่า</b> กี่บาท พร้อมตารางรายวัน</li>
+      <li>ถ้าไม่ตรง กด <kbd>สรุปเป็นหลักฐาน</kbd> → <kbd>คัดลอกข้อความ</kbd> แล้วส่งหรือพิมพ์ยื่นที่ <b>กองบริการสำนักงาน สำนักงานธุรการ</b></li>
+    </ol>
+    <div class="note"><b>กำหนดเวลาโต้แย้ง:</b> รายวันภายใน 3 วันทำการ · ยอดรายเดือนภายในวันที่ 3 ของเดือนถัดไป หลังจากนั้นโต้แย้งไม่ได้ทุกกรณี แอพแสดงจำนวนวันที่เหลือไว้บนหน้าตรวจยอด</div>
+    <p>แนะนำให้ดูยอดบนจอแสดงผลก่อนเข้าลานจอดทุกวัน (ตามข้อ ๘.๑) เทียบกับค่าจอดของวันก่อนในแอพ</p>
+  </section>
+
+  <section id="s7"><h2><span class="n">07</span>สถิติ</h2>
+    <p>แท็บ <kbd>สถิติ</kbd> มีสองมุมมอง</p>
+    <ul>
+      <li><b>รายเดือน:</b> กราฟค่าจอดรายวัน วันที่จอด ชั่วโมงรวม ค่าเฉลี่ยต่อวัน และจำนวนวันที่ถึงเพดาน 80 บาท</li>
+      <li><b>รายปี:</b> ยอดแต่ละเดือน ค่าเฉลี่ยต่อเดือน และเดือนที่จ่ายสูงสุด</li>
+    </ul>
+  </section>
+
+  <section id="s8"><h2><span class="n">08</span>ความเป็นส่วนตัว</h2>
+    <ul>
+      <li>แต่ละคนเข้าระบบด้วย Gmail ของตัวเอง ข้อมูลผูกกับบัญชีนั้น</li>
+      <li>ฐานข้อมูลใช้ Row Level Security: เมื่อเข้าระบบแล้ว อ่านและแก้ไขได้เฉพาะข้อมูลของตัวเอง เพื่อนในทีมไม่เห็นข้อมูลของคุณ</li>
+      <li>ใช้มือถือหรือคอมพิวเตอร์เครื่องไหนก็ได้ ข้อมูลตามบัญชีไป</li>
+    </ul>
+  </section>
+
+  <section id="s9"><h2><span class="n">09</span>คำถามที่พบบ่อย</h2>
+    <p><b>เข้าระบบแล้วขึ้นว่า “ใช้ได้เฉพาะบัญชี @gmail.com”</b><br>คุณเลือกบัญชีอีเมลงานหรืออีเมลอื่น ให้ออกแล้วเลือกบัญชี @gmail.com</p>
+    <p><b>กดเข้าไม่ได้ ขึ้นว่า “มีรายการที่กำลังจอดอยู่แล้ว”</b><br>มีรายการเก่าที่ยังไม่ได้กดออก ให้กด <kbd>ออก</kbd> ก่อน หรือแก้เวลาออกของรายการนั้นในแท็บ “บันทึก”</p>
+    <p><b>เปลี่ยนรถระหว่างวัน</b><br>กดออกด้วยคันเดิมก่อน สลับคันที่ปุ่มทะเบียนมุมขวาบน แล้วจึงกดเข้า</p>
+    <p><b>ยอดในแอพต่างจากจอหน้าลานจอด</b><br>ดูป้ายของรายการวันนั้น ถ้าเป็นรายการ “เพิ่มย้อนหลัง” เวลาที่ใส่อาจคลาดเคลื่อน ถ้ากดปุ่มสดและยังต่างอยู่ ให้โต้แย้งภายใน 3 วันทำการ</p>
+    <p><b>เปลี่ยนเป็นโหมดมืด</b><br>แตะปุ่มพระจันทร์/พระอาทิตย์บนหน้า “วันนี้” หรือไปที่ <kbd>โปรไฟล์</kbd> → ธีม</p>
+  </section>
+</main>
+</body>
+</html>
